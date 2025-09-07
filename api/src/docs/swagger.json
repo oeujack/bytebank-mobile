@@ -1,0 +1,203 @@
+{
+    "openapi": "1.0.0",
+    "info": {
+        "title": "Tech Bank API",
+        "description": "API",
+        "version": "1.0.0",
+        "contact": {
+            "email": ""
+        }
+    },
+    "paths": {
+        "/users": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create",
+                "description": "Create a new user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "example": {
+                                    "name": "Teste",
+                                    "email": "Teste@email.com",
+                                    "password": "123"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update",
+                "description": "Update user profile",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "required": false
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "required": false
+                                    },
+                                    "old_password": {
+                                        "type": "string",
+                                        "required": false
+                                    }
+                                },
+                                "example": {
+                                    "name": "Teste",
+                                    "password": "1234",
+                                    "old_password": "123"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },       
+        "/sessions": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Sign In",
+                "description": "User authentication",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "example": {
+                                    "email": "Teste@email.com",
+                                    "password": "123"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "example": {
+                                        "id": 1,
+                                        "name": "Teste",
+                                        "email": "Teste@email.com",
+                                        "avatar": "346dab6b457abadbbb2a-49030804.jpg",
+                                        "created_at": "2022-08-22 19:59:46",
+                                        "updated_at": "2022-08-22T20:07:45.340Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Not authorized/Invalid email or password"
+                    }
+                }
+            }
+        },
+        "/sessions/refresh-token": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Refresh Token",
+                "description": "Auth Refresh Token",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "example": {
+                                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJvZHJpZ29AZW1haWwuY29tIiwiaWF0IjoxNjYxMjc1NDAxLCJleHAiOjE2NjM4Njc0MDEsInN1YiI6IjEifQ.yQqqvmuZrF9ZM0LThzIu8dlwQtmuHdG0C_nwziXWyMo"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJvZHJpZ29AZW1haWwuY29tIiwiaWF0IjoxNjYxMjc1NDE5LCJleHAiOjE2NjM4Njc0MTksInN1YiI6IjEifQ.kQoOrRyGvSkLcFS49ItDcLUEB7pEhbwyPRoEA5sR4ao"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Refresh token not found"
+                    }
+                }
+            }
+        }
+
+    }
+}
