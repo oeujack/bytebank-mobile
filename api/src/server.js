@@ -16,6 +16,11 @@ app.use(cors());
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
+// Endpoint de teste
+app.get('/', (req, res) => {
+  res.json({ message: 'API is working!' });
+});
+
 app.use(routes);
 
 app.use((err, request, response, next) => {
@@ -35,4 +40,4 @@ app.use((err, request, response, next) => {
 });
 
 const PORT = 3333;
-app.listen(PORT, () => console.log(`Server is running on Port ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));

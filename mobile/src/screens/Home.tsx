@@ -1,65 +1,24 @@
 import { useState } from 'react';
-import { Alert, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native';
 import {
   VStack,
   HStack,
   Text,
   Heading,
-  FlatList,
   Box,
-  Icon,
-  Image,
-  Badge,
-  BadgeText,
-  Fab,
-  FabIcon,
-  AddIcon,
 } from '@gluestack-ui/themed';
 import { HomeHeader } from '@components/HomeHeader';
 import { Loading } from '@components/Loading';
 import { Button } from '@components/Button';
-import { TransactionDTO } from '@dtos/TransactionDTO';
+import { CircularMenu } from '@components/CircularMenu';
+import { TransactionList } from '@components/TransactionList';
 import { useTransactions } from '@hooks/useTransactions';
-import { AppError } from '@utils/AppError';
-import { Pencil, Trash2, Eye, EyeOff } from 'lucide-react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
 
 export function Home() {
-  const navigation = useNavigation();
-  const { transactions, balances, isLoading, deleteTransaction } = useTransactions();
+  const { balances, isLoading } = useTransactions();
   const [showBalances, setShowBalances] = useState(false);
-
-  function handleAddTransaction() {
-    navigation.navigate('addEditTransaction');
-  }
-
-  function handleEditTransaction(transactionId: number) {
-    navigation.navigate('addEditTransaction', { transactionId });
-  }
-
-  async function handleDeleteTransaction(transactionId: number) {
-    Alert.alert(
-      'Excluir Transação',
-      'Tem certeza que deseja excluir esta transação?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteTransaction(transactionId);
-              Alert.alert('Sucesso', 'Transação excluída com sucesso');
-            } catch (error) {
-              const isAppError = error instanceof AppError;
-              const title = isAppError ? error.message : 'Erro ao excluir transação';
-              Alert.alert('Erro', title);
-            }
-          },
-        },
-      ]
-    );
-  }
+  const [showTransactionList, setShowTransactionList] = useState(false);
 
   function formatCurrency(value: number) {
     return new Intl.NumberFormat('pt-BR', {
@@ -68,87 +27,12 @@ export function Home() {
     }).format(value);
   }
 
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+  function handleShowTransactions() {
+    setShowTransactionList(true);
   }
 
-  function renderTransactionItem({ item }: { item: TransactionDTO }) {
-    return (
-      <Box
-        bg="$gray600"
-        p="$4"
-        borderRadius="$lg"
-        mb="$3"
-      >
-        <HStack justifyContent="space-between" alignItems="flex-start" mb="$2">
-          <VStack flex={1} mr="$2">
-            <HStack alignItems="center" space="$2" mb="$1">
-              <Badge
-                size="sm"
-                variant="solid"
-                bg={item.account_type === 'conta-corrente' ? '$blue500' : '$green500'}
-              >
-                <BadgeText fontSize="$xs">
-                  {item.account_type === 'conta-corrente' ? 'Conta-Corrente' : 'Poupança'}
-                </BadgeText>
-              </Badge>
-              <Badge
-                size="sm"
-                variant="outline"
-                borderColor={item.transaction_type === 'deposito' ? '$green500' : '$orange500'}
-              >
-                <BadgeText 
-                  fontSize="$xs"
-                  color={item.transaction_type === 'deposito' ? '$green500' : '$orange500'}
-                >
-                  {item.transaction_type === 'deposito' ? 'Depósito' : 'Transferência'}
-                </BadgeText>
-              </Badge>
-            </HStack>
-            
-            <Heading size="lg" color="$gray100" mb="$1">
-              {formatCurrency(item.amount)}
-            </Heading>
-            
-            {item.description && (
-              <Text color="$gray300" fontSize="$sm" mb="$1">
-                {item.description}
-              </Text>
-            )}
-            
-            <Text color="$gray400" fontSize="$xs">
-              {formatDate(item.transaction_date || item.created_at || '')}
-            </Text>
-          </VStack>
-
-          <HStack space="$2" alignItems="center">
-            {item.attachment_url && (
-              <Image
-                source={{ uri: item.attachment_url }}
-                alt="Anexo"
-                width="$12"
-                height="$12"
-                borderRadius="$md"
-              />
-            )}
-            
-            <VStack space="$1">
-              <TouchableOpacity onPress={() => handleEditTransaction(item.id!)}>
-                <Box p="$2" bg="$gray500" borderRadius="$md">
-                  <Icon as={Pencil} size="sm" color="$gray200" />
-                </Box>
-              </TouchableOpacity>
-              
-              <TouchableOpacity onPress={() => handleDeleteTransaction(item.id!)}>
-                <Box p="$2" bg="$red500" borderRadius="$md">
-                  <Icon as={Trash2} size="sm" color="$white" />
-                </Box>
-              </TouchableOpacity>
-            </VStack>
-          </HStack>
-        </HStack>
-      </Box>
-    );
+  function handleCloseTransactions() {
+    setShowTransactionList(false);
   }
 
   if (isLoading) {
@@ -160,77 +44,108 @@ export function Home() {
       <HomeHeader />
       
       <VStack flex={1} p="$6">
-        {/* Seção de Saldos */}
-        <VStack mb="$6">
+        {/* Seção de Saldos - Estilo do projeto anterior */}
+        <VStack 
+          bg="$gray700" 
+          borderBottomWidth={1} 
+          borderBottomColor="$gray600"
+          p="$4"
+          mb="$6"
+        >
+          {/* Header do Saldo */}
           <HStack justifyContent="space-between" alignItems="center" mb="$3">
-            <Heading size="lg" color="$gray100">
-              Saldos
-            </Heading>
-            <Button
-              title={showBalances ? 'Esconder' : 'Ver'}
-              variant="outline"
-              size="sm"
-              onPress={() => setShowBalances(!showBalances)}
-            />
+            <Text color="$gray100" fontSize="$lg" fontWeight="$semibold">
+              Saldo
+            </Text>
+            <Text color="$gray100" fontSize="$xs">
+              ByteBank
+            </Text>
           </HStack>
 
-          {showBalances && (
-            <HStack space="$3">
-              <Box flex={1} bg="$blue500" p="$4" borderRadius="$lg">
-                <Text color="$white" fontSize="$sm" mb="$1">
-                  Conta-Corrente
-                </Text>
-                <Heading size="md" color="$white">
-                  {formatCurrency(balances['conta-corrente'])}
-                </Heading>
-              </Box>
-              
-              <Box flex={1} bg="$green500" p="$4" borderRadius="$lg">
-                <Text color="$white" fontSize="$sm" mb="$1">
-                  Poupança
-                </Text>
-                <Heading size="md" color="$white">
-                  {formatCurrency(balances['poupanca'])}
-                </Heading>
-              </Box>
+          {/* Conta Corrente */}
+          <HStack justifyContent="space-between" alignItems="center" mb="$4">
+            <HStack alignItems="center" space="md">
+              <Heading 
+                size="xl" 
+                color="$gray100"
+                style={{
+                  filter: showBalances ? 'none' : 'blur(6px)',
+                }}
+              >
+                {formatCurrency(balances['conta-corrente'])}
+              </Heading>
+              <TouchableOpacity onPress={() => setShowBalances(!showBalances)}>
+                <Box p="$1">
+                  {showBalances ? (
+                    <EyeOff size={20} color="#9CA3AF" />
+                  ) : (
+                    <Eye size={20} color="#9CA3AF" />
+                  )}
+                </Box>
+              </TouchableOpacity>
             </HStack>
-          )}
+            <TouchableOpacity>
+              <Text color="$gray300" fontSize="$sm" textDecorationLine="underline">
+                Ver extrato
+              </Text>
+            </TouchableOpacity>
+          </HStack>
+
+          {/* Poupança */}
+          <VStack>
+            <HStack justifyContent="space-between" alignItems="center">
+              <Text color="$gray300" fontSize="$md" fontWeight="$medium">
+                Poupança
+              </Text>
+              <TouchableOpacity>
+                <Text color="$blue400" fontSize="$sm" fontWeight="$medium">
+                  Depositar
+                </Text>
+              </TouchableOpacity>
+            </HStack>
+            <HStack alignItems="center" space="md" mt="$1">
+              <Text 
+                color="$gray100" 
+                fontSize="$xl"
+                fontWeight="$semibold"
+                style={{
+                  filter: showBalances ? 'none' : 'blur(6px)',
+                }}
+              >
+                {formatCurrency(balances['poupanca'])}
+              </Text>
+              <TouchableOpacity onPress={() => setShowBalances(!showBalances)}>
+                <Box p="$1">
+                  {showBalances ? (
+                    <EyeOff size={16} color="#9CA3AF" />
+                  ) : (
+                    <Eye size={16} color="#9CA3AF" />
+                  )}
+                </Box>
+              </TouchableOpacity>
+            </HStack>
+          </VStack>
         </VStack>
 
-        {/* Lista de Transações */}
-        <VStack flex={1}>
-          <Heading size="lg" color="$gray100" mb="$4">
-            Transações
-          </Heading>
+        {/* Menu Circular */}
+        <CircularMenu onTransactionsPress={handleShowTransactions} />
 
-          {transactions.length === 0 ? (
-            <Box flex={1} justifyContent="center" alignItems="center">
-              <Text color="$gray400" textAlign="center">
-                Nenhuma transação encontrada.{'\n'}
-                Toque no botão + para adicionar uma nova transação.
-              </Text>
-            </Box>
-          ) : (
-            <FlatList
-              data={transactions}
-              keyExtractor={(item) => String(item.id)}
-              renderItem={renderTransactionItem}
-              showsVerticalScrollIndicator={false}
-              flex={1}
-            />
-          )}
+        {/* Área de boas-vindas */}
+        <VStack flex={1} justifyContent="center" alignItems="center" px="$4">
+          <Text color="$gray300" fontSize="$lg" textAlign="center" mb="$2">
+            Bem-vindo ao ByteBank
+          </Text>
+          <Text color="$gray400" fontSize="$sm" textAlign="center" lineHeight="$sm">
+            Gerencie suas transações bancárias de forma simples e segura.{'\n'}
+            Use o menu acima para acessar suas funcionalidades.
+          </Text>
         </VStack>
       </VStack>
 
-      {/* FAB para adicionar transação */}
-      <Fab
-        size="lg"
-        placement="bottom right"
-        bg="$green500"
-        onPress={handleAddTransaction}
-      >
-        <FabIcon as={AddIcon} />
-      </Fab>
+      {/* Modal de Lista de Transações */}
+      {showTransactionList && (
+        <TransactionList onClose={handleCloseTransactions} />
+      )}
     </VStack>
   );
 }

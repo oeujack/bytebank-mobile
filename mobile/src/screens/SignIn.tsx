@@ -37,7 +37,12 @@ export function SignIn() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
   function handleNewAccount() {
     navigation.navigate('signUp');
@@ -106,12 +111,13 @@ export function SignIn() {
               control={control}
               name="email"
               rules={{ required: 'Informe o e-mail' }}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <Input
                   placeholder="E-mail"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   onChangeText={onChange}
+                  value={value}
                   errorMessage={errors.email?.message}
                 />
               )}
@@ -120,11 +126,12 @@ export function SignIn() {
               control={control}
               name="password"
               rules={{ required: 'Informe a senha' }}
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value } }) => (
                 <Input
                   placeholder="Senha"
                   secureTextEntry
                   onChangeText={onChange}
+                  value={value}
                   errorMessage={errors.password?.message}
                 />
               )}

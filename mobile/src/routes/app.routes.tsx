@@ -6,7 +6,6 @@ import { StackRoutes } from './stack.routes';
 import { gluestackUIConfig } from '../../config/gluestack-ui.config';
 
 import HomeSvg from '@assets/home.svg';
-import { Platform } from 'react-native';
 
 type AppRoutesProps = {
   home: undefined;
@@ -30,7 +29,7 @@ export function AppRoutes() {
         tabBarStyle: {
           backgroundColor: tokens.colors.gray600,
           borderTopWidth: 0,
-          height: Platform.OS === 'android' ? 'auto' : 96,
+          height: 96,
           paddingBottom: tokens.space['10'],
           paddingTop: tokens.space['6'],
         },

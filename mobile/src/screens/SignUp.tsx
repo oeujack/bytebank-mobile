@@ -62,6 +62,12 @@ export function SignUp() {
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(signUpSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      password_confirm: '',
+    },
   });
 
   const navigation = useNavigation();

@@ -46,6 +46,7 @@ export function Input({
           fontFamily="$body"
           placeholderTextColor="$gray300"
           {...props}
+          value={props.value ?? ''}
         />
       </GluestackInput>
 

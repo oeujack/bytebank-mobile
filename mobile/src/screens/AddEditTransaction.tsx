@@ -21,7 +21,6 @@ import {
   Box,
   ChevronDownIcon,
   Icon,
-  CameraIcon,
 } from '@gluestack-ui/themed';
 import { ScreenHeader } from '@components/ScreenHeader';
 import { Input } from '@components/Input';
@@ -80,6 +79,14 @@ export function AddEditTransaction() {
     }
   }
 
+  function handleAccountTypeChange(value: string) {
+    setAccountType(value as 'conta-corrente' | 'poupanca');
+  }
+
+  function handleTransactionTypeChange(value: string) {
+    setTransactionType(value as 'transferencia' | 'deposito');
+  }
+
   async function handleSubmit() {
     try {
       if (!amount || parseFloat(amount) <= 0) {
@@ -104,7 +111,7 @@ export function AddEditTransaction() {
         transaction_type: transactionType,
         amount: parseFloat(amount),
         description: description.trim() || undefined,
-        attachment_url: finalAttachmentUrl,
+        attachment_url: finalAttachmentUrl || undefined,
         transaction_date: new Date().toISOString(),
       };
 
@@ -135,19 +142,17 @@ export function AddEditTransaction() {
       <ScreenHeader title={isEditing ? 'Editar Transação' : 'Nova Transação'} />
 
       <ScrollView flex={1} showsVerticalScrollIndicator={false}>
-        <VStack p="$6" space="$4">
+        <VStack p="$6" space="lg">
           
           {/* Tipo de Conta */}
-          <VStack space="$2">
+          <VStack space="sm">
             <Text color="$gray200" fontSize="$sm">
               Tipo de Conta
             </Text>
-            <Select selectedValue={accountType} onValueChange={setAccountType}>
+            <Select selectedValue={accountType} onValueChange={handleAccountTypeChange}>
               <SelectTrigger variant="outline" size="lg">
                 <SelectInput placeholder="Selecione o tipo de conta" />
-                <SelectIcon mr="$3">
-                  <Icon as={ChevronDownIcon} />
-                </SelectIcon>
+                <SelectIcon mr="$3" as={ChevronDownIcon} />
               </SelectTrigger>
               <SelectPortal>
                 <SelectBackdrop />
@@ -163,16 +168,14 @@ export function AddEditTransaction() {
           </VStack>
 
           {/* Tipo de Transação */}
-          <VStack space="$2">
+          <VStack space="sm">
             <Text color="$gray200" fontSize="$sm">
               Tipo de Transação
             </Text>
-            <Select selectedValue={transactionType} onValueChange={setTransactionType}>
+            <Select selectedValue={transactionType} onValueChange={handleTransactionTypeChange}>
               <SelectTrigger variant="outline" size="lg">
                 <SelectInput placeholder="Selecione o tipo de transação" />
-                <SelectIcon mr="$3">
-                  <Icon as={ChevronDownIcon} />
-                </SelectIcon>
+                <SelectIcon mr="$3" as={ChevronDownIcon} />
               </SelectTrigger>
               <SelectPortal>
                 <SelectBackdrop />
@@ -205,7 +208,7 @@ export function AddEditTransaction() {
           />
 
           {/* Upload de Anexo */}
-          <VStack space="$2">
+          <VStack space="sm">
             <Text color="$gray200" fontSize="$sm">
               Anexo (obrigatório)
             </Text>
@@ -223,15 +226,38 @@ export function AddEditTransaction() {
               >
                 {(imageUri || attachmentUrl) ? (
                   <Image
-                    source={{ uri: imageUri || attachmentUrl }}
+                    source={{ uri: imageUri || attachmentUrl || undefined }}
                     alt="Anexo"
-                    width="100%"
-                    height="100%"
-                    borderRadius="$md"
+                    style={{ width: '100%', height: '100%', borderRadius: 8 }}
                   />
                 ) : (
-                  <VStack alignItems="center" space="$2">
-                    <Icon as={CameraIcon} size="xl" color="$gray400" />
+                  <VStack alignItems="center" space="sm">
+                    {/* Ícone de câmera simples usando componentes básicos */}
+                    <Box
+                      width="$12"
+                      height="$8"
+                      bg="$gray400"
+                      borderRadius="$md"
+                      justifyContent="center"
+                      alignItems="center"
+                      position="relative"
+                    >
+                      <Box
+                        width="$6"
+                        height="$6"
+                        borderWidth={2}
+                        borderColor="$white"
+                        borderRadius="$full"
+                      />
+                      <Box
+                        width="$2"
+                        height="$1"
+                        bg="$gray400"
+                        position="absolute"
+                        top={-2}
+                        borderRadius="$sm"
+                      />
+                    </Box>
                     <Text color="$gray400" textAlign="center">
                       Toque para adicionar uma foto
                     </Text>
