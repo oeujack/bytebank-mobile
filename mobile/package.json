@@ -36,7 +36,9 @@
     "react-native-svg": "15.11.2",
     "react-native-web": "^0.19.13",
     "yup": "^1.6.1",
-    "@expo/metro-runtime": "~5.0.4"
+    "@expo/metro-runtime": "~5.0.4",
+    "expo-constants": "~17.1.7",
+    "expo-image-manipulator": "~13.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
