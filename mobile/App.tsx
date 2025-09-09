@@ -4,7 +4,7 @@ import {
   useFonts,
 } from '@expo-google-fonts/roboto';
 import { GluestackUIProvider } from '@gluestack-ui/themed';
-import { StatusBar } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { config } from './config/gluestack-ui.config';
 import { Loading } from '@components/Loading';
 import { Routes } from '@routes/index';
@@ -16,11 +16,7 @@ export default function App() {
 
   return (
     <GluestackUIProvider config={config}>
-      <StatusBar
-        barStyle="light-content"
-        translucent
-        backgroundColor="transparent"
-      />
+      <StatusBar style="light" translucent backgroundColor="transparent" />
       <AuthContextProvider>
         {fontsLoaded ? <Routes /> : <Loading />}
       </AuthContextProvider>

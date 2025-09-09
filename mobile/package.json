@@ -25,6 +25,7 @@
     "expo-image": "^2.3.0",
     "expo-image-picker": "~16.1.4",
     "expo-status-bar": "~2.2.3",
+    "firebase": "^12.2.1",
     "lucide-react-native": "^0.501.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -33,7 +34,11 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "4.11.1",
     "react-native-svg": "15.11.2",
-    "yup": "^1.6.1"
+    "react-native-web": "^0.19.13",
+    "yup": "^1.6.1",
+    "@expo/metro-runtime": "~5.0.4",
+    "expo-constants": "~17.1.7",
+    "expo-image-manipulator": "~13.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
