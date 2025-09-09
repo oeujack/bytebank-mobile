@@ -89,23 +89,31 @@ export function AddEditTransaction() {
 
   async function handleSubmit() {
     try {
+      console.log('💾 SUBMIT: Iniciando salvamento da transação');
+      
       if (!amount || parseFloat(amount) <= 0) {
+        console.log('❌ SUBMIT: Valor inválido');
         return Alert.alert('Erro', 'Valor deve ser maior que zero');
       }
 
       if (!imageUri && !attachmentUrl) {
+        console.log('❌ SUBMIT: Imagem obrigatória não fornecida');
         return Alert.alert('Erro', 'É obrigatório anexar uma foto');
       }
 
+      console.log('🔄 SUBMIT: Definindo loading como true');
       setIsLoading(true);
 
       let finalAttachmentUrl = attachmentUrl;
 
       // Se há uma nova imagem selecionada, fazer upload
       if (imageUri) {
+        console.log('📤 SUBMIT: Nova imagem detectada, iniciando upload...');
         finalAttachmentUrl = await uploadImage(imageUri);
+        console.log('✅ SUBMIT: Upload concluído, URL:', finalAttachmentUrl);
       }
 
+      console.log('📝 SUBMIT: Preparando dados da transação...');
       const transactionData = {
         account_type: accountType,
         transaction_type: transactionType,
@@ -114,21 +122,29 @@ export function AddEditTransaction() {
         attachment_url: finalAttachmentUrl || undefined,
         transaction_date: new Date().toISOString(),
       };
+      console.log('📝 SUBMIT: Dados preparados:', transactionData);
 
       if (isEditing) {
+        console.log('✏️ SUBMIT: Atualizando transação existente...');
         await updateTransaction(transactionId, transactionData);
+        console.log('✅ SUBMIT: Transação atualizada');
         Alert.alert('Sucesso', 'Transação atualizada com sucesso');
       } else {
+        console.log('➕ SUBMIT: Criando nova transação...');
         await createTransaction(transactionData);
+        console.log('✅ SUBMIT: Transação criada');
         Alert.alert('Sucesso', 'Transação criada com sucesso');
       }
 
+      console.log('🏠 SUBMIT: Navegando de volta...');
       navigation.goBack();
     } catch (error) {
+      console.error('❌ SUBMIT: Erro durante salvamento:', error);
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Erro ao salvar transação';
       Alert.alert('Erro', title);
     } finally {
+      console.log('🔄 SUBMIT: Definindo loading como false');
       setIsLoading(false);
     }
   }

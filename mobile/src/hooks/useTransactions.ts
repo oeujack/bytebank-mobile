@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '@services/api';
 import { TransactionDTO, BalanceDTO } from '@dtos/TransactionDTO';
+import { useImageUpload } from './useImageUpload';
 import { AppError } from '@utils/AppError';
 
 export function useTransactions() {
@@ -10,6 +11,7 @@ export function useTransactions() {
     'poupanca': 0
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { deleteImage } = useImageUpload();
 
   async function fetchTransactions() {
     try {
@@ -63,7 +65,18 @@ export function useTransactions() {
   async function deleteTransaction(id: number) {
     try {
       setIsLoading(true);
+      
+      // Buscar a transação para obter a URL da imagem antes de deletar
+      const transaction = transactions.find(t => t.id === id);
+      
+      // Deletar a transação da API
       await api.delete(`/transactions/${id}`);
+      
+      // Se a transação tem uma imagem, deletar do Firebase
+      if (transaction?.attachment_url) {
+        await deleteImage(transaction.attachment_url);
+      }
+      
       await fetchTransactions();
       await fetchBalances();
     } catch (error) {
