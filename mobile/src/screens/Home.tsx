@@ -57,73 +57,45 @@ export function Home() {
             <Text color="$gray100" fontSize="$lg" fontWeight="$semibold">
               Saldo
             </Text>
-            <Text color="$gray100" fontSize="$xs">
-              ByteBank
-            </Text>
+            <TouchableOpacity onPress={() => setShowBalances(!showBalances)}>
+              <Box p="$1">
+                {showBalances ? (
+                  <EyeOff size={20} color="#9CA3AF" />
+                ) : (
+                  <Eye size={20} color="#9CA3AF" />
+                )}
+              </Box>
+            </TouchableOpacity>
           </HStack>
 
           {/* Conta Corrente */}
-          <HStack justifyContent="space-between" alignItems="center" mb="$4">
-            <HStack alignItems="center" space="md">
-              <Heading 
-                size="xl" 
-                color="$gray100"
-                style={{
-                  filter: showBalances ? 'none' : 'blur(6px)',
-                }}
-              >
-                {formatCurrency(balances['conta-corrente'])}
-              </Heading>
-              <TouchableOpacity onPress={() => setShowBalances(!showBalances)}>
-                <Box p="$1">
-                  {showBalances ? (
-                    <EyeOff size={20} color="#9CA3AF" />
-                  ) : (
-                    <Eye size={20} color="#9CA3AF" />
-                  )}
-                </Box>
-              </TouchableOpacity>
-            </HStack>
-            <TouchableOpacity>
-              <Text color="$gray300" fontSize="$sm" textDecorationLine="underline">
-                Ver extrato
-              </Text>
-            </TouchableOpacity>
+          <HStack justifyContent="flex-start" alignItems="center" mb="$4">
+            <Heading 
+              size="xl" 
+              color="$gray100"
+              style={{
+                filter: showBalances ? 'none' : 'blur(6px)',
+              }}
+            >
+              {formatCurrency(balances['conta-corrente'])}
+            </Heading>
           </HStack>
 
           {/* Poupança */}
           <VStack>
-            <HStack justifyContent="space-between" alignItems="center">
-              <Text color="$gray300" fontSize="$md" fontWeight="$medium">
-                Poupança
-              </Text>
-              <TouchableOpacity>
-                <Text color="$blue400" fontSize="$sm" fontWeight="$medium">
-                  Depositar
-                </Text>
-              </TouchableOpacity>
-            </HStack>
-            <HStack alignItems="center" space="md" mt="$1">
-              <Text 
-                color="$gray100" 
-                fontSize="$xl"
-                fontWeight="$semibold"
-                style={{
-                  filter: showBalances ? 'none' : 'blur(6px)',
-                }}
-              >
-                {formatCurrency(balances['poupanca'])}
-              </Text>
-              <TouchableOpacity onPress={() => setShowBalances(!showBalances)}>
-                <Box p="$1">
-                  {showBalances ? (
-                    <EyeOff size={16} color="#9CA3AF" />
-                  ) : (
-                    <Eye size={16} color="#9CA3AF" />
-                  )}
-                </Box>
-              </TouchableOpacity>
-            </HStack>
+            <Text color="$gray300" fontSize="$md" fontWeight="$medium" mb="$1">
+              Poupança
+            </Text>
+            <Text 
+              color="$gray100" 
+              fontSize="$xl"
+              fontWeight="$semibold"
+              style={{
+                filter: showBalances ? 'none' : 'blur(6px)',
+              }}
+            >
+              {formatCurrency(balances['poupanca'])}
+            </Text>
           </VStack>
         </VStack>
 
