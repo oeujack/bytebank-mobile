@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { TouchableOpacity } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   VStack,
   HStack,
@@ -16,7 +17,7 @@ import { useTransactions } from '@hooks/useTransactions';
 import { Eye, EyeOff } from 'lucide-react-native';
 
 export function Home() {
-  const { balances, isLoading } = useTransactions();
+  const { balances, transactions, isLoading, fetchTransactions, fetchBalances } = useTransactions();
   const [showBalances, setShowBalances] = useState(false);
   const [showTransactionList, setShowTransactionList] = useState(false);
 
@@ -34,6 +35,14 @@ export function Home() {
   function handleCloseTransactions() {
     setShowTransactionList(false);
   }
+
+  // Atualizar dados quando a tela ganhar foco (ex: ao voltar da edição)
+  useFocusEffect(
+    useCallback(() => {
+      fetchTransactions();
+      fetchBalances();
+    }, [])
+  );
 
   if (isLoading) {
     return <Loading />;
