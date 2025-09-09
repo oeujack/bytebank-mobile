@@ -1,0 +1,85 @@
+name: Build and Test ByteBank Mobile
+
+on:
+  push:
+    branches: [ firebase-storage-transactions, master ]
+  pull_request:
+    branches: [ firebase-storage-transactions, master ]
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: api/package-lock.json
+    
+    - name: Install API dependencies
+      run: |
+        cd api
+        npm ci
+    
+    - name: Run API migrations
+      run: |
+        cd api
+        npx knex migrate:latest
+    
+    - name: Start API server
+      run: |
+        cd api
+        npm start &
+        sleep 10
+    
+    - name: Test API endpoints
+      run: |
+        curl -f http://localhost:3333/api-docs || exit 1
+
+  build-mobile:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: mobile/package-lock.json
+    
+    - name: Install Expo CLI
+      run: npm install -g @expo/cli
+    
+    - name: Install mobile dependencies
+      run: |
+        cd mobile
+        npm ci
+    
+    - name: Create .env file with secrets
+      run: |
+        cd mobile
+        cat > .env << EOF
+        FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+        FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
+        FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+        FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
+        FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+        FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
+        FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}
+        EOF
+    
+    - name: Export for web
+      run: |
+        cd mobile
+        npx expo export:web
+    
+    - name: Build web bundle
+      run: |
+        cd mobile
+        npx expo build:web

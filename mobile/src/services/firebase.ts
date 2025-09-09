@@ -9,7 +9,8 @@ const firebaseConfig = {
   projectId: Constants.expoConfig?.extra?.firebaseProjectId || "your-project-id",
   storageBucket: Constants.expoConfig?.extra?.firebaseStorageBucket || "your-project.appspot.com",
   messagingSenderId: Constants.expoConfig?.extra?.firebaseMessagingSenderId || "123456789",
-  appId: Constants.expoConfig?.extra?.firebaseAppId || "your-app-id"
+  appId: Constants.expoConfig?.extra?.firebaseAppId || "your-app-id",
+  measurementId: Constants.expoConfig?.extra?.firebaseMeasurementId || "G-XXXXXXXXXX"
 };
 
 // Log para debug (remover em produção)
