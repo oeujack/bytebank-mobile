@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "gymapp",
-    "slug": "gymapp",
+    "name": "bytebank",
+    "slug": "bytebank",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
