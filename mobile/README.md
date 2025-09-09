@@ -15,8 +15,8 @@ Aplicativo mobile para gerenciamento de transações bancárias desenvolvido com
 ## 🔥 Configuração do Firebase
 
 ### Projeto Firebase Atual
-- **Project ID**: `bytebank-mobile-aca97`
-- **Storage Bucket**: `bytebank-mobile-aca97.firebasestorage.app`
+- **Project ID**: `your-project-id`
+- **Storage Bucket**: `your-project.firebasestorage.app`
 - **Região**: us-central1
 
 ### 1. Configuração de Ambiente
@@ -28,13 +28,13 @@ cp .env.example .env
 
 **Configure o arquivo `.env` com as credenciais reais:**
 ```env
-# Firebase Configuration - Projeto: bytebank-mobile-aca97
-FIREBASE_API_KEY=AIzaSyCVoGI3-ZDsPqErD2HvYIjWTAHjudAFzOc
-FIREBASE_AUTH_DOMAIN=bytebank-mobile-aca97.firebaseapp.com
-FIREBASE_PROJECT_ID=bytebank-mobile-aca97
-FIREBASE_STORAGE_BUCKET=bytebank-mobile-aca97.firebasestorage.app
-FIREBASE_MESSAGING_SENDER_ID=123456789012
-FIREBASE_APP_ID=1:123456789012:web:abcdef123456
+# Firebase Configuration - Substitua pelos seus dados
+FIREBASE_API_KEY=your_api_key_here
+FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+FIREBASE_APP_ID=your_app_id
 ```
 
 ### 2. Regras de Segurança do Firebase Storage

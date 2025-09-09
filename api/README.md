@@ -131,12 +131,12 @@ A API está preparada para trabalhar com URLs de imagens armazenadas no Firebase
 ```javascript
 // firebase.ts
 const firebaseConfig = {
-  apiKey: "AIzaSyCVoGI3-ZDsPqErD2HvYIjWTAHjudAFzOc",
-  authDomain: "bytebank-mobile-aca97.firebaseapp.com",
-  projectId: "bytebank-mobile-aca97",
-  storageBucket: "bytebank-mobile-aca97.firebasestorage.app",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef123456"
+  apiKey: "your_api_key_here",
+  authDomain: "your_project.firebaseapp.com",
+  projectId: "your_project_id",
+  storageBucket: "your_project.firebasestorage.app",
+  messagingSenderId: "your_sender_id",
+  appId: "your_app_id"
 };
 ```
 
