@@ -13,12 +13,6 @@ const firebaseConfig = {
   measurementId: Constants.expoConfig?.extra?.firebaseMeasurementId || "G-XXXXXXXXXX"
 };
 
-// Log para debug (remover em produção)
-console.log('Firebase Config:', {
-  projectId: firebaseConfig.projectId,
-  storageBucket: firebaseConfig.storageBucket
-});
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
