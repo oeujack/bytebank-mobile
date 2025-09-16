@@ -24,9 +24,10 @@ import { StackNavigatorRouterProps } from '@routes/stack.routes';
 
 interface TransactionListProps {
   onClose: () => void;
+  onTransactionDeleted?: () => void;
 }
 
-export function TransactionList({ onClose }: TransactionListProps) {
+export function TransactionList({ onClose, onTransactionDeleted }: TransactionListProps) {
   const navigation = useNavigation<StackNavigatorRouterProps>();
   const { transactions, isLoading, deleteTransaction } = useTransactions();
 
@@ -51,6 +52,10 @@ export function TransactionList({ onClose }: TransactionListProps) {
             try {
               await deleteTransaction(transactionId);
               Alert.alert('Sucesso', 'Transação excluída com sucesso');
+              // Chamar callback para atualizar dados na tela pai
+              if (onTransactionDeleted) {
+                onTransactionDeleted();
+              }
             } catch (error) {
               const isAppError = error instanceof AppError;
               const title = isAppError ? error.message : 'Erro ao excluir transação';

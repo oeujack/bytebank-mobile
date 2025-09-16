@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   VStack,
@@ -18,8 +18,17 @@ import { Eye, EyeOff } from 'lucide-react-native';
 
 export function Home() {
   const { balances, transactions, isLoading, fetchTransactions, fetchBalances } = useTransactions();
-  const [showBalances, setShowBalances] = useState(false);
+  const [showBalances, setShowBalances] = useState(true);
   const [showTransactionList, setShowTransactionList] = useState(false);
+
+  const blurStyle = StyleSheet.create({
+    blurred: {
+      fontSize: 20,
+      color: '#7C7C8A',
+      letterSpacing: 2,
+    },
+    normal: {},
+  });
 
   function formatCurrency(value: number) {
     return new Intl.NumberFormat('pt-BR', {
@@ -34,6 +43,12 @@ export function Home() {
 
   function handleCloseTransactions() {
     setShowTransactionList(false);
+  }
+
+  function handleTransactionDeleted() {
+    // Forçar atualização dos dados após exclusão
+    fetchTransactions();
+    fetchBalances();
   }
 
   // Atualizar dados quando a tela ganhar foco (ex: ao voltar da edição)
@@ -82,11 +97,9 @@ export function Home() {
             <Heading 
               size="xl" 
               color="$gray100"
-              style={{
-                filter: showBalances ? 'none' : 'blur(6px)',
-              }}
+              style={!showBalances ? blurStyle.blurred : blurStyle.normal}
             >
-              {formatCurrency(balances['conta-corrente'])}
+              {!showBalances ? '● ● ● ● ● ●' : formatCurrency(balances['conta-corrente'])}
             </Heading>
           </HStack>
 
@@ -99,11 +112,9 @@ export function Home() {
               color="$gray100" 
               fontSize="$xl"
               fontWeight="$semibold"
-              style={{
-                filter: showBalances ? 'none' : 'blur(6px)',
-              }}
+              style={!showBalances ? blurStyle.blurred : blurStyle.normal}
             >
-              {formatCurrency(balances['poupanca'])}
+              {!showBalances ? '● ● ● ● ● ●' : formatCurrency(balances['poupanca'])}
             </Text>
           </VStack>
         </VStack>
@@ -125,7 +136,10 @@ export function Home() {
 
       {/* Modal de Lista de Transações */}
       {showTransactionList && (
-        <TransactionList onClose={handleCloseTransactions} />
+        <TransactionList 
+          onClose={handleCloseTransactions} 
+          onTransactionDeleted={handleTransactionDeleted}
+        />
       )}
     </VStack>
   );
