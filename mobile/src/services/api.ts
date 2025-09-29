@@ -1,14 +1,17 @@
 import axios from "axios";
+import { Platform } from "react-native";
 import { AppError } from "@utils/AppError";
 import {
   storageAuthTokenGet,
   storageAuthTokenRemove,
 } from "@storage/storageAuthToken";
 import { storageUserRemove } from "@storage/storageUser";
-import { Platform } from 'react-native';
 
 const api = axios.create({
-  baseURL: Platform.OS === 'android' ? 'http://10.0.0.127:3333' : 'http://localhost:3333',
+  baseURL:
+    Platform.OS === "android"
+      ? "http://10.0.0.127:3333"
+      : "http://localhost:3333",
 });
 
 // Interceptor para adicionar o token automaticamente

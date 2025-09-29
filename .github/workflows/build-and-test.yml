@@ -34,11 +34,11 @@ jobs:
       run: |
         cd api
         npm start &
-        sleep 10
+        sleep 15
     
-    - name: Test API endpoints
+    - name: Test API health
       run: |
-        curl -f http://localhost:3333/api-docs || exit 1
+        curl -f http://localhost:3333/ || exit 1
 
   build-mobile:
     runs-on: ubuntu-latest
@@ -61,7 +61,7 @@ jobs:
         cd mobile
         npm ci
     
-    - name: Create .env file with secrets
+    - name: Create .env file with Firebase secrets
       run: |
         cd mobile
         cat > .env << EOF
@@ -74,12 +74,12 @@ jobs:
         FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}
         EOF
     
-    - name: Export for web
+    - name: Check TypeScript compilation
       run: |
         cd mobile
-        npx expo export:web
+        npx tsc --noEmit
     
-    - name: Build web bundle
+    - name: Test web build with Firebase
       run: |
         cd mobile
-        npx expo build:web
+        npx expo export -p web
