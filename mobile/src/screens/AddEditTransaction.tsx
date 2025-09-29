@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Alert, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useState, useEffect } from "react";
+import { Alert, TouchableOpacity } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import {
   VStack,
   Text,
@@ -21,15 +21,15 @@ import {
   Box,
   ChevronDownIcon,
   Icon,
-} from '@gluestack-ui/themed';
-import { ScreenHeader } from '@components/ScreenHeader';
-import { Input } from '@components/Input';
-import { Button } from '@components/Button';
-import { Loading } from '@components/Loading';
-import { TransactionDTO } from '@dtos/TransactionDTO';
-import { useTransactions } from '@hooks/useTransactions';
-import { useImageUpload } from '@hooks/useImageUpload';
-import { AppError } from '@utils/AppError';
+} from "@gluestack-ui/themed";
+import { ScreenHeader } from "@components/ScreenHeader";
+import { Input } from "@components/Input";
+import { Button } from "@components/Button";
+import { Loading } from "@components/Loading";
+import { TransactionDTO } from "@dtos/TransactionDTO";
+import { useTransactions } from "@hooks/useTransactions";
+import { useImageUpload } from "@hooks/useImageUpload";
+import { AppError } from "@utils/AppError";
 
 type RouteParamsProps = {
   transactionId?: number;
@@ -39,14 +39,19 @@ export function AddEditTransaction() {
   const navigation = useNavigation();
   const route = useRoute();
   const { transactionId } = route.params as RouteParamsProps;
-  
-  const { createTransaction, updateTransaction, transactions } = useTransactions();
+
+  const { createTransaction, updateTransaction, transactions } =
+    useTransactions();
   const { selectImage, uploadImage, isUploading } = useImageUpload();
 
-  const [accountType, setAccountType] = useState<'conta-corrente' | 'poupanca'>('conta-corrente');
-  const [transactionType, setTransactionType] = useState<'transferencia' | 'deposito'>('deposito');
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
+  const [accountType, setAccountType] = useState<"conta-corrente" | "poupanca">(
+    "conta-corrente"
+  );
+  const [transactionType, setTransactionType] = useState<
+    "transferencia" | "deposito"
+  >("deposito");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,12 +60,12 @@ export function AddEditTransaction() {
 
   useEffect(() => {
     if (isEditing) {
-      const transaction = transactions.find(t => t.id === transactionId);
+      const transaction = transactions.find((t) => t.id === transactionId);
       if (transaction) {
         setAccountType(transaction.account_type);
         setTransactionType(transaction.transaction_type);
         setAmount(transaction.amount.toString());
-        setDescription(transaction.description || '');
+        setDescription(transaction.description || "");
         setAttachmentUrl(transaction.attachment_url || null);
       }
     }
@@ -74,27 +79,27 @@ export function AddEditTransaction() {
       }
     } catch (error) {
       const isAppError = error instanceof AppError;
-      const title = isAppError ? error.message : 'Erro ao selecionar imagem';
-      Alert.alert('Erro', title);
+      const title = isAppError ? error.message : "Erro ao selecionar imagem";
+      Alert.alert("Erro", title);
     }
   }
 
   function handleAccountTypeChange(value: string) {
-    setAccountType(value as 'conta-corrente' | 'poupanca');
+    setAccountType(value as "conta-corrente" | "poupanca");
   }
 
   function handleTransactionTypeChange(value: string) {
-    setTransactionType(value as 'transferencia' | 'deposito');
+    setTransactionType(value as "transferencia" | "deposito");
   }
 
   async function handleSubmit() {
     try {
       if (!amount || parseFloat(amount) <= 0) {
-        return Alert.alert('Erro', 'Valor deve ser maior que zero');
+        return Alert.alert("Erro", "Valor deve ser maior que zero");
       }
 
       if (!imageUri && !attachmentUrl) {
-        return Alert.alert('Erro', 'É obrigatório anexar uma foto');
+        return Alert.alert("Erro", "É obrigatório anexar uma foto");
       }
 
       setIsLoading(true);
@@ -117,17 +122,17 @@ export function AddEditTransaction() {
 
       if (isEditing) {
         await updateTransaction(transactionId, transactionData);
-        Alert.alert('Sucesso', 'Transação atualizada com sucesso');
+        Alert.alert("Sucesso", "Transação atualizada com sucesso");
       } else {
         await createTransaction(transactionData);
-        Alert.alert('Sucesso', 'Transação criada com sucesso');
+        Alert.alert("Sucesso", "Transação criada com sucesso");
       }
 
       navigation.goBack();
     } catch (error) {
       const isAppError = error instanceof AppError;
-      const title = isAppError ? error.message : 'Erro ao salvar transação';
-      Alert.alert('Erro', title);
+      const title = isAppError ? error.message : "Erro ao salvar transação";
+      Alert.alert("Erro", title);
     } finally {
       setIsLoading(false);
     }
@@ -139,19 +144,24 @@ export function AddEditTransaction() {
 
   return (
     <VStack flex={1}>
-      <ScreenHeader title={isEditing ? 'Editar Transação' : 'Nova Transação'} />
+      <ScreenHeader title={isEditing ? "Editar Transação" : "Nova Transação"} />
 
       <ScrollView flex={1} showsVerticalScrollIndicator={false}>
         <VStack p="$6" space="lg">
-          
           {/* Tipo de Conta */}
           <VStack space="sm">
             <Text color="$gray200" fontSize="$sm">
               Tipo de Conta
             </Text>
-            <Select selectedValue={accountType} onValueChange={handleAccountTypeChange}>
+            <Select
+              selectedValue={accountType}
+              onValueChange={handleAccountTypeChange}
+            >
               <SelectTrigger variant="outline" size="lg">
-                <SelectInput placeholder="Selecione o tipo de conta" />
+                <SelectInput
+                  placeholder="Selecione o tipo de conta"
+                  style={{ color: "white" }}
+                />
                 <SelectIcon mr="$3" as={ChevronDownIcon} />
               </SelectTrigger>
               <SelectPortal>
@@ -172,9 +182,15 @@ export function AddEditTransaction() {
             <Text color="$gray200" fontSize="$sm">
               Tipo de Transação
             </Text>
-            <Select selectedValue={transactionType} onValueChange={handleTransactionTypeChange}>
+            <Select
+              selectedValue={transactionType}
+              onValueChange={handleTransactionTypeChange}
+            >
               <SelectTrigger variant="outline" size="lg">
-                <SelectInput placeholder="Selecione o tipo de transação" />
+                <SelectInput
+                  placeholder="Selecione o tipo de transação"
+                  style={{ color: "white" }}
+                />
                 <SelectIcon mr="$3" as={ChevronDownIcon} />
               </SelectTrigger>
               <SelectPortal>
@@ -212,7 +228,7 @@ export function AddEditTransaction() {
             <Text color="$gray200" fontSize="$sm">
               Anexo (obrigatório)
             </Text>
-            
+
             <TouchableOpacity onPress={handleImageSelect}>
               <Box
                 borderWidth={1}
@@ -224,11 +240,11 @@ export function AddEditTransaction() {
                 h="$32"
                 borderStyle="dashed"
               >
-                {(imageUri || attachmentUrl) ? (
+                {imageUri || attachmentUrl ? (
                   <Image
                     source={{ uri: imageUri || attachmentUrl || undefined }}
                     alt="Anexo"
-                    style={{ width: '100%', height: '100%', borderRadius: 8 }}
+                    style={{ width: "100%", height: "100%", borderRadius: 8 }}
                   />
                 ) : (
                   <VStack alignItems="center" space="sm">
@@ -268,7 +284,7 @@ export function AddEditTransaction() {
           </VStack>
 
           <Button
-            title={isEditing ? 'Salvar Alterações' : 'Criar Transação'}
+            title={isEditing ? "Salvar Alterações" : "Criar Transação"}
             onPress={handleSubmit}
             isLoading={isLoading}
             mt="$4"
