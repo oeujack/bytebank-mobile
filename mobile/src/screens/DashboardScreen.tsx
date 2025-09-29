@@ -3,15 +3,15 @@
 import React from "react";
 import { StyleSheet, Dimensions, ScrollView } from "react-native";
 import { VStack, HStack, Text, Heading, Box } from "@gluestack-ui/themed";
-import { TransactionDTO } from '@dtos/TransactionDTO';
-import { useTransactions } from '@hooks/useTransactions';
+import { TransactionDTO } from "@dtos/TransactionDTO";
+import { useTransactions } from "@hooks/useTransactions";
 
-import { PieChart, BarChart } from "react-native-chart-kit";
 import {
   expensesByCategory,
   recentTransactions,
 } from "@assets/mock/dashboarMock";
 import { HomeHeader } from "@components/HomeHeader";
+import { BarChart, PieChart } from "react-native-chart-kit";
 
 // Paleta de cores para o nosso gráfico
 const COLORS = [
@@ -28,24 +28,30 @@ const BARCOLOR = ["#2563EB"];
 type DashboardScreenProps = {};
 
 const DashboardScreen: React.FC<DashboardScreenProps> = () => {
-  const { balances, transactions, isLoading, fetchTransactions, fetchBalances } = useTransactions();
+  const {
+    balances,
+    transactions,
+    isLoading,
+    fetchTransactions,
+    fetchBalances,
+  } = useTransactions();
 
   const pieDataFromTransactions = Object.values(
-  transactions.reduce((acc, t, idx) => {
-    const key = t.description ?? `Transação ${idx + 1}`;
-    if (!acc[key]) {
-      acc[key] = {
-        name: key,
-        amount: 0,
-        color: COLORS[idx % COLORS.length],
-        legendFontColor: "#fff",
-        legendFontSize: 15,
-      };
-    }
-    acc[key].amount += t.amount;
-    return acc;
-  }, {} as Record<string, any>)
-);
+    transactions.reduce((acc, t, idx) => {
+      const key = t.description ?? `Transação ${idx + 1}`;
+      if (!acc[key]) {
+        acc[key] = {
+          name: key,
+          amount: 0,
+          color: COLORS[idx % COLORS.length],
+          legendFontColor: "#fff",
+          legendFontSize: 15,
+        };
+      }
+      acc[key].amount += t.amount;
+      return acc;
+    }, {} as Record<string, any>)
+  );
 
   const chartConfig = {
     color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
@@ -62,7 +68,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
     decimalPlaces: 0,
 
-    color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`, 
+    color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
 
     style: {
@@ -76,21 +82,27 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     fontFamily: "Roboto",
     propsForLabels: {
       fontFamily: "Roboto",
-      fill: '#fff',
-      color: '#fff'
+      fill: "#fff",
+      color: "#fff",
     },
-    colors:'#2563EB',
+    colors: "#2563EB",
   };
 
   const barChartData = {
-  labels: transactions.map(t => t.transaction_type ?? "").filter(label => typeof label === "string"), // Ensure only strings
-  datasets: [
-    {
-      data: transactions.map(t => t.amount),
-      colors: transactions.map(() => (opacity = 1) => '#2563EB'),
-    }
-  ]
-};
+    labels: transactions
+      .map((t) => t.transaction_type ?? "")
+      .filter((label) => typeof label === "string"), // Ensure only strings
+    datasets: [
+      {
+        data: transactions.map((t) => t.amount),
+        colors: transactions.map(
+          () =>
+            (opacity = 1) =>
+              "#2563EB"
+        ),
+      },
+    ],
+  };
 
   return (
     <ScrollView>
@@ -136,25 +148,25 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               </Text>
             </HStack>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <BarChart
-              data={barChartData}
-              width={600}
-              height={340}
-              yAxisLabel="R$"
-              chartConfig={barChartConfig}
-              verticalLabelRotation={24}
-              flatColor={true}
-              yAxisSuffix={""}
-              withInnerLines={false}
-              withCustomBarColorFromData={true} 
-              style={{
-                marginVertical: 8,
-                borderRadius: 10,
-              }}
-              fromZero={true}
-            />
-          </ScrollView>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <BarChart
+                data={barChartData}
+                width={600}
+                height={340}
+                yAxisLabel="R$"
+                chartConfig={barChartConfig}
+                verticalLabelRotation={24}
+                flatColor={true}
+                yAxisSuffix={""}
+                withInnerLines={false}
+                withCustomBarColorFromData={true}
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 10,
+                }}
+                fromZero={true}
+              />
+            </ScrollView>
           </VStack>
         </VStack>
       </VStack>
