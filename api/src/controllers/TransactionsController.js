@@ -29,13 +29,13 @@ class TransactionsController {
     // se for transferência, transforma em valor negativo
     if (transaction_type === "transferencia") {
       transactionAmount = -Math.abs(amount);
-    }
+    } 
 
     const [transaction_id] = await knex("transactions").insert({
       user_id,
       account_type,
       transaction_type,
-      transactionAmount,
+      amount: transactionAmount,
       description,
       attachment_url,
       transaction_date: knex.fn.now(),
@@ -107,7 +107,7 @@ class TransactionsController {
     }
 
     let newAmount = amount !== undefined ? amount : transaction.amount;
-    
+
     // se for transferência, transforma em valor negativo
     if (
       (transaction_type || transaction.transaction_type) === "transferencia"
