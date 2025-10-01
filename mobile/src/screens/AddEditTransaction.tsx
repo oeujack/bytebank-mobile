@@ -93,6 +93,7 @@ export function AddEditTransaction() {
   }
 
   async function handleSubmit() {
+    console.log("handleSubmit")
     try {
       if (!amount || parseFloat(amount) <= 0) {
         return Alert.alert("Erro", "Valor deve ser maior que zero");

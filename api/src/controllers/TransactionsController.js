@@ -3,12 +3,12 @@ const AppError = require("../utils/AppError");
 
 class TransactionsController {
   async create(request, response) {
-    const { 
-      account_type, 
-      transaction_type, 
-      amount, 
-      description, 
-      attachment_url 
+    const {
+      account_type,
+      transaction_type,
+      amount,
+      description,
+      attachment_url,
     } = request.body;
     const user_id = request.user.id;
 
@@ -16,22 +16,29 @@ class TransactionsController {
       throw new AppError("Todos os campos obrigatórios devem ser preenchidos");
     }
 
-    if (!['conta-corrente', 'poupanca'].includes(account_type)) {
+    if (!["conta-corrente", "poupanca"].includes(account_type)) {
       throw new AppError("Tipo de conta inválido");
     }
 
-    if (!['transferencia', 'deposito'].includes(transaction_type)) {
+    if (!["transferencia", "deposito"].includes(transaction_type)) {
       throw new AppError("Tipo de transação inválido");
+    }
+
+    let transactionAmount = amount;
+
+    // se for transferência, transforma em valor negativo
+    if (transaction_type === "transferencia") {
+      transactionAmount = -Math.abs(amount);
     }
 
     const [transaction_id] = await knex("transactions").insert({
       user_id,
       account_type,
       transaction_type,
-      amount,
+      transactionAmount,
       description,
       attachment_url,
-      transaction_date: knex.fn.now()
+      transaction_date: knex.fn.now(),
     });
 
     const transaction = await knex("transactions")
@@ -73,7 +80,7 @@ class TransactionsController {
       transaction_type,
       amount,
       description,
-      attachment_url
+      attachment_url,
     } = request.body;
     const user_id = request.user.id;
 
@@ -85,12 +92,29 @@ class TransactionsController {
       throw new AppError("Transação não encontrada");
     }
 
-    if (account_type && !['conta-corrente', 'poupanca'].includes(account_type)) {
+    if (
+      account_type &&
+      !["conta-corrente", "poupanca"].includes(account_type)
+    ) {
       throw new AppError("Tipo de conta inválido");
     }
 
-    if (transaction_type && !['transferencia', 'deposito'].includes(transaction_type)) {
+    if (
+      transaction_type &&
+      !["transferencia", "deposito"].includes(transaction_type)
+    ) {
       throw new AppError("Tipo de transação inválido");
+    }
+
+    let newAmount = amount !== undefined ? amount : transaction.amount;
+    
+    // se for transferência, transforma em valor negativo
+    if (
+      (transaction_type || transaction.transaction_type) === "transferencia"
+    ) {
+      newAmount = -Math.abs(newAmount);
+    } else {
+      newAmount = Math.abs(newAmount);
     }
 
     await knex("transactions")
@@ -98,15 +122,17 @@ class TransactionsController {
       .update({
         account_type: account_type || transaction.account_type,
         transaction_type: transaction_type || transaction.transaction_type,
-        amount: amount !== undefined ? amount : transaction.amount,
-        description: description !== undefined ? description : transaction.description,
-        attachment_url: attachment_url !== undefined ? attachment_url : transaction.attachment_url,
-        updated_at: knex.fn.now()
+        amount: newAmount,
+        description:
+          description !== undefined ? description : transaction.description,
+        attachment_url:
+          attachment_url !== undefined
+            ? attachment_url
+            : transaction.attachment_url,
+        updated_at: knex.fn.now(),
       });
 
-    const updatedTransaction = await knex("transactions")
-      .where({ id })
-      .first();
+    const updatedTransaction = await knex("transactions").where({ id }).first();
 
     return response.json(updatedTransaction);
   }
@@ -123,9 +149,7 @@ class TransactionsController {
       throw new AppError("Transação não encontrada");
     }
 
-    await knex("transactions")
-      .where({ id, user_id })
-      .delete();
+    await knex("transactions").where({ id, user_id }).delete();
 
     return response.status(204).send();
   }
@@ -135,16 +159,16 @@ class TransactionsController {
 
     const balances = await knex("transactions")
       .where({ user_id })
-      .select('account_type')
-      .sum('amount as total')
-      .groupBy('account_type');
+      .select("account_type")
+      .sum("amount as total")
+      .groupBy("account_type");
 
     const result = {
-      'conta-corrente': 0,
-      'poupanca': 0
+      "conta-corrente": 0,
+      poupanca: 0,
     };
 
-    balances.forEach(balance => {
+    balances.forEach((balance) => {
       result[balance.account_type] = parseFloat(balance.total) || 0;
     });
 
