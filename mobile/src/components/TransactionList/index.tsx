@@ -104,12 +104,6 @@ export function TransactionList({
   }, [transactions, filterType]);
 
   const displayedTransactions = useMemo(() => {
-    console.log(
-      "ITEM",
-      itemsToShow,
-      "RETORNO",
-      filteredTransactions.slice(0, itemsToShow)
-    );
     return filteredTransactions.slice(0, itemsToShow);
   }, [filteredTransactions, itemsToShow]);
 
