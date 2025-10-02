@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -44,6 +44,8 @@ export function TransactionList({
   const { transactions, isLoading, deleteTransaction } = useTransactions();
 
   const [filterType, setFilterType] = useState<string>("todos");
+  const [itemsToShow, setItemsToShow] = useState(10);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   function handleAddTransaction() {
     navigation.navigate("addEditTransaction", {});
@@ -94,10 +96,37 @@ export function TransactionList({
     return new Date(dateString).toLocaleDateString("pt-BR");
   }
 
-  const filteredTransactions = transactions.filter((t: TransactionDTO) => {
-    if (filterType === "todos") return true;
-    return t.transaction_type === filterType;
-  });
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((t: TransactionDTO) => {
+      if (filterType === "todos") return true;
+      return t.transaction_type === filterType;
+    });
+  }, [transactions, filterType]);
+
+  const displayedTransactions = useMemo(() => {
+    console.log(
+      "ITEM",
+      itemsToShow,
+      "RETORNO",
+      filteredTransactions.slice(0, itemsToShow)
+    );
+    return filteredTransactions.slice(0, itemsToShow);
+  }, [filteredTransactions, itemsToShow]);
+
+  /* Função para scroll infinito */
+  function loadMoreTransactions() {
+    if (loadingMore) return; // trava múltiplas chamadas
+    if (itemsToShow >= filteredTransactions.length) return; // nada mais a carregar
+
+    setLoadingMore(true);
+    setItemsToShow((prev) => Math.min(prev + 10, filteredTransactions.length));
+
+    setTimeout(() => setLoadingMore(false), 1000); // libera depois de um tempo
+  }
+
+  useEffect(() => {
+    setItemsToShow(10);
+  }, [filterType]);
 
   function renderTransactionItem({ item }: { item: TransactionDTO }) {
     return (
@@ -241,7 +270,7 @@ export function TransactionList({
 
       {/* Lista de Transações */}
       <VStack flex={1} p="$6">
-        {filteredTransactions.length === 0 ? (
+        {displayedTransactions.length === 0 ? (
           <Box flex={1} justifyContent="center" alignItems="center">
             <Text color="$white" textAlign="center">
               Nenhuma transação encontrada.{"\n"}
@@ -250,11 +279,20 @@ export function TransactionList({
           </Box>
         ) : (
           <FlatList
-            data={filteredTransactions as any[]}
+            data={displayedTransactions as any[]}
             keyExtractor={(item: any) => String(item.id)}
             renderItem={({ item }: any) => renderTransactionItem({ item })}
+            onEndReached={loadMoreTransactions}
+            onEndReachedThreshold={0.1}
             showsVerticalScrollIndicator={false}
             flex={1}
+            ListFooterComponent={
+              loadingMore ? (
+                <Box py="$4" justifyContent="center" alignItems="center">
+                  <Text color="$white">Carregando mais...</Text>
+                </Box>
+              ) : null
+            }
           />
         )}
       </VStack>
