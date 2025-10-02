@@ -20,7 +20,7 @@
     "@react-navigation/native": "^7.1.6",
     "@react-navigation/native-stack": "^7.3.10",
     "axios": "^1.9.0",
-    "expo": "53.0.22",
+    "expo": "^54.0.12",
     "expo-constants": "~17.1.7",
     "expo-file-system": "~18.1.11",
     "expo-font": "~13.3.1",
@@ -31,12 +31,12 @@
     "firebase": "^12.2.1",
     "lucide-react-native": "^0.501.0",
     "memoize-one": "^6.0.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-hook-form": "^7.56.1",
-    "react-native": "0.79.5",
+    "react-native": "0.81.4",
     "react-native-chart-kit": "^6.12.0",
-    "react-native-safe-area-context": "5.4.0",
+    "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "4.11.1",
     "react-native-svg": "^15.11.2",
     "react-native-web": "^0.20.0",
@@ -47,7 +47,7 @@
     "@types/react": "~19.0.10",
     "metro-react-native-babel-transformer": "^0.77.0",
     "react-native-svg-transformer": "^1.5.0",
-    "typescript": "^5.3.3"
+    "typescript": "~5.8.3"
   },
   "private": true
 }
