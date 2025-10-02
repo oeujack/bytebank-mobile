@@ -98,10 +98,6 @@ export function AddEditTransaction() {
         return Alert.alert("Erro", "Valor deve ser maior que zero");
       }
 
-      if (!imageUri && !attachmentUrl) {
-        return Alert.alert("Erro", "É obrigatório anexar uma foto");
-      }
-
       setIsLoading(true);
 
       let finalAttachmentUrl = attachmentUrl;
@@ -226,7 +222,7 @@ export function AddEditTransaction() {
           {/* Upload de Anexo */}
           <VStack space="sm">
             <Text color="$gray200" fontSize="$sm">
-              Anexo (obrigatório)
+              Anexo (opcional)
             </Text>
 
             <TouchableOpacity onPress={handleImageSelect}>
