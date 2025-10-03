@@ -24,6 +24,8 @@ import {
   SelectBackdrop,
   SelectIcon,
   ChevronDownIcon,
+  Button,
+  ButtonText,
 } from "@gluestack-ui/themed";
 import { TransactionDTO } from "@dtos/TransactionDTO";
 import { useTransactions } from "@hooks/useTransactions";
@@ -44,6 +46,8 @@ export function TransactionList({
   const { transactions, isLoading, deleteTransaction } = useTransactions();
 
   const [filterType, setFilterType] = useState<string>("todos");
+  const [filterPeriod, setFilterPeriod] = useState<string>("todos");
+  const [showFilters, setShowFilters] = useState(false);
   const [itemsToShow, setItemsToShow] = useState(10);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -97,11 +101,38 @@ export function TransactionList({
   }
 
   const filteredTransactions = useMemo(() => {
+    const now = new Date();
     return transactions.filter((t: TransactionDTO) => {
-      if (filterType === "todos") return true;
-      return t.transaction_type === filterType;
+      // Filtra por tipo
+      if (filterType !== "todos" && t.transaction_type !== filterType) {
+        return false;
+      }
+
+      // Normaliza a data da transação
+      if (!t.transaction_date) return false;
+      const transactionDate = new Date(t.transaction_date);
+
+      // Filtra por período
+      if (filterPeriod === "hoje") {
+        const isToday = transactionDate.toDateString() === now.toDateString();
+        if (!isToday) return false;
+      }
+
+      if (filterPeriod === "ultimos7") {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(now.getDate() - 7);
+        if (transactionDate < sevenDaysAgo) return false;
+      }
+
+      if (filterPeriod === "ultimos30") {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(now.getDate() - 30);
+        if (transactionDate < thirtyDaysAgo) return false;
+      }
+
+      return true;
     });
-  }, [transactions, filterType]);
+  }, [transactions, filterType, filterPeriod]);
 
   const displayedTransactions = useMemo(() => {
     return filteredTransactions.slice(0, itemsToShow);
@@ -243,25 +274,68 @@ export function TransactionList({
           </Box>
         </TouchableOpacity>
       </HStack>
+      <Box>
+        {/* Botão para abrir/fechar filtros */}
+        <Box px="$6" mt="$4">
+          <Button bg="$green500" onPress={() => setShowFilters(!showFilters)}>
+            <ButtonText>
+              {showFilters ? "Ocultar Filtros" : "Mostrar Filtros"}
+            </ButtonText>
+          </Button>
+        </Box>
 
-      {/* Filtro de Tipo de Transação */}
-      <Box px="$6" mt="$4">
-        <Select selectedValue={filterType} onValueChange={setFilterType}>
-          <SelectTrigger variant="outline" size="md">
-            <SelectInput placeholder="Filtrar por tipo" color="$white" />
-            <SelectIcon as={ChevronDownIcon} />
-          </SelectTrigger>
-          <SelectPortal>
-            <SelectBackdrop />
-            <SelectContent>
-              <SelectItem label="Todos" value="todos" />
-              <SelectItem label="Depósito" value="deposito" />
-              <SelectItem label="Transferência" value="transferencia" />
-            </SelectContent>
-          </SelectPortal>
-        </Select>
+        {showFilters && (
+          <>
+            {/* Filtro de Tipo de Transação */}
+            <Box px="$6" mt="$4">
+              <Text color="$white" mb="$2">
+                Tipo de Transação
+              </Text>
+              <Select selectedValue={filterType} onValueChange={setFilterType}>
+                <SelectTrigger variant="outline" size="md">
+                  <SelectInput placeholder="Filtrar por tipo" color="$white" />
+                  <SelectIcon as={ChevronDownIcon} />
+                </SelectTrigger>
+                <SelectPortal>
+                  <SelectBackdrop />
+                  <SelectContent>
+                    <SelectItem label="Todos" value="todos" />
+                    <SelectItem label="Depósito" value="deposito" />
+                    <SelectItem label="Transferência" value="transferencia" />
+                  </SelectContent>
+                </SelectPortal>
+              </Select>
+            </Box>
+            {/*Filtro de data*/}
+            <Box px="$6" mt="$4">
+              <Text color="$white" mb="$2">
+                Período
+              </Text>
+              <Select
+                selectedValue={filterPeriod}
+                onValueChange={setFilterPeriod}
+              >
+                <SelectTrigger variant="outline" size="md">
+                  <SelectInput
+                    placeholder="Filtrar por período"
+                    color="$white"
+                  />
+                  <SelectIcon as={ChevronDownIcon} />
+                </SelectTrigger>
+                <SelectPortal>
+                  <SelectBackdrop />
+                  <SelectContent>
+                    <SelectItem label="Todos" value="todos" />
+                    <SelectItem label="Hoje" value="hoje" />
+                    <SelectItem label="Últimos 7 dias" value="ultimos7" />
+                    <SelectItem label="Últimos 30 dias" value="ultimos30" />
+                  </SelectContent>
+                </SelectPortal>
+              </Select>
+            </Box>
+          </>
+        )}
       </Box>
-
       {/* Lista de Transações */}
       <VStack flex={1} p="$6">
         {displayedTransactions.length === 0 ? (
