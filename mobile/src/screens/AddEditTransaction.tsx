@@ -64,7 +64,7 @@ export function AddEditTransaction() {
       if (transaction) {
         setAccountType(transaction.account_type);
         setTransactionType(transaction.transaction_type);
-        setAmount(transaction.amount.toString());
+        setAmount(Math.abs(transaction.amount).toString());
         setDescription(transaction.description || "");
         setAttachmentUrl(transaction.attachment_url || null);
       }
