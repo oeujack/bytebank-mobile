@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -8,10 +8,6 @@ import {
   Heading,
   FlatList,
   Box,
-  Icon,
-  Image,
-  Badge,
-  BadgeText,
   Fab,
   FabIcon,
   AddIcon,
@@ -26,12 +22,14 @@ import {
   ChevronDownIcon,
   Button,
   ButtonText,
+  Input,
+  InputField,
 } from "@gluestack-ui/themed";
 import { TransactionDTO } from "@dtos/TransactionDTO";
 import { useTransactions } from "@hooks/useTransactions";
 import { AppError } from "@utils/AppError";
-import { Pencil, Trash2 } from "lucide-react-native";
 import { StackNavigatorRouterProps } from "@routes/stack.routes";
+import TransactionItem from "@components/TransactionItem";
 
 interface TransactionListProps {
   onClose: () => void;
@@ -47,6 +45,7 @@ export function TransactionList({
 
   const [filterType, setFilterType] = useState<string>("todos");
   const [filterPeriod, setFilterPeriod] = useState<string>("todos");
+  const [search, setSearch] = useState<string>("");
   const [showFilters, setShowFilters] = useState(false);
   const [itemsToShow, setItemsToShow] = useState(10);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -89,17 +88,6 @@ export function TransactionList({
     );
   }
 
-  function formatCurrency(value: number) {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  }
-
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString("pt-BR");
-  }
-
   const filteredTransactions = useMemo(() => {
     const now = new Date();
     return transactions.filter((t: TransactionDTO) => {
@@ -108,11 +96,37 @@ export function TransactionList({
         return false;
       }
 
+      // Filtro por busca
+      if (search.trim() !== "") {
+        const searchNormalized = search.trim().toLowerCase();
+
+        // Normaliza o valor do amount
+        const amountStr = Math.abs(t.amount)
+          .toFixed(2) 
+          .replace(".", ","); 
+
+        const descriptionStr = (t.description || "").toLowerCase();
+
+        // Verifica se a busca é número
+        if (!isNaN(Number(searchNormalized))) {
+          // se for número, compara exato
+          if (amountStr !== searchNormalized && amountStr !== `${searchNormalized},00`) {
+            return false;
+          }
+        } else {
+          // se for texto, usa includes
+          if (!descriptionStr.includes(searchNormalized)) {
+            return false;
+          }
+        }
+      }
+
+      // Filtra por período
+
       // Normaliza a data da transação
       if (!t.transaction_date) return false;
       const transactionDate = new Date(t.transaction_date);
 
-      // Filtra por período
       if (filterPeriod === "hoje") {
         const isToday = transactionDate.toDateString() === now.toDateString();
         if (!isToday) return false;
@@ -132,7 +146,7 @@ export function TransactionList({
 
       return true;
     });
-  }, [transactions, filterType, filterPeriod]);
+  }, [transactions, filterType, filterPeriod, search]);
 
   const displayedTransactions = useMemo(() => {
     return filteredTransactions.slice(0, itemsToShow);
@@ -153,97 +167,18 @@ export function TransactionList({
     setItemsToShow(10);
   }, [filterType]);
 
-  function renderTransactionItem({ item }: { item: TransactionDTO }) {
-    return (
-      <Box bg="$gray600" p="$4" borderRadius="$lg" mb="$3">
-        <HStack justifyContent="space-between" alignItems="flex-start" mb="$2">
-          <VStack flex={1} mr="$2">
-            <HStack alignItems="center" space="sm" mb="$1">
-              <Badge
-                size="sm"
-                variant="solid"
-                bg={
-                  item.account_type === "conta-corrente"
-                    ? "$gray100"
-                    : "$gray100"
-                }
-              >
-                <BadgeText fontSize="$xs">
-                  {item.account_type === "conta-corrente"
-                    ? "Conta-Corrente"
-                    : "Poupança"}
-                </BadgeText>
-              </Badge>
-              <Badge
-                size="sm"
-                variant="outline"
-                borderColor={
-                  item.transaction_type === "deposito"
-                    ? "$green500"
-                    : "$orange500"
-                }
-              >
-                <BadgeText
-                  fontSize="$xs"
-                  color={
-                    item.transaction_type === "deposito"
-                      ? "$green500"
-                      : "$orange500"
-                  }
-                >
-                  {item.transaction_type === "deposito"
-                    ? "Depósito"
-                    : "Transferência"}
-                </BadgeText>
-              </Badge>
-            </HStack>
-
-            <Heading size="lg" color="$gray100" mb="$1">
-              {formatCurrency(item.amount)}
-            </Heading>
-
-            {item.description && (
-              <Text color="$gray300" fontSize="$sm" mb="$1">
-                {item.description}
-              </Text>
-            )}
-
-            <Text color="$gray100" fontSize="$xs">
-              {formatDate(item.transaction_date || item.created_at || "")}
-            </Text>
-          </VStack>
-
-          <HStack space="sm" alignItems="center">
-            {item.attachment_url && (
-              <Image
-                source={{ uri: item.attachment_url }}
-                alt="Anexo"
-                width={48}
-                height={48}
-                borderRadius={8}
-              />
-            )}
-
-            <VStack space="xs">
-              <TouchableOpacity onPress={() => handleEditTransaction(item.id!)}>
-                <Box p="$2" bg="$gray500" borderRadius="$md">
-                  <Icon as={Pencil} size="sm" color="$gray200" />
-                </Box>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => handleDeleteTransaction(item.id!)}
-              >
-                <Box p="$2" bg="$red500" borderRadius="$md">
-                  <Icon as={Trash2} size="sm" color="$white" />
-                </Box>
-              </TouchableOpacity>
-            </VStack>
-          </HStack>
-        </HStack>
-      </Box>
-    );
-  }
+  const renderTransactionItem = useCallback(
+    ({ item }: { item: TransactionDTO }) => {
+      return (
+        <TransactionItem
+          item={item}
+          onEdit={handleEditTransaction}
+          onDelete={handleDeleteTransaction}
+        />
+      );
+    },
+    []
+  );
 
   return (
     <VStack
@@ -286,6 +221,17 @@ export function TransactionList({
 
         {showFilters && (
           <>
+            {/* Busca */}
+            <Box px="$6" mt="$4">
+              <Input $focus-borderColor="$green500">
+                <InputField
+                  color="$white"
+                  placeholder="Buscar"
+                  value={search}
+                  onChangeText={setSearch}
+                />
+              </Input>
+            </Box>
             {/* Filtro de Tipo de Transação */}
             <Box px="$6" mt="$4">
               <Text color="$white" mb="$2">
@@ -342,6 +288,7 @@ export function TransactionList({
           <Box flex={1} justifyContent="center" alignItems="center">
             <Text color="$white" textAlign="center">
               Nenhuma transação encontrada.{"\n"}
+              Verifique o filtro e tente novamente ou
               Toque no botão + para adicionar uma nova transação.
             </Text>
           </Box>
@@ -354,6 +301,9 @@ export function TransactionList({
             onEndReachedThreshold={0.1}
             showsVerticalScrollIndicator={false}
             flex={1}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={5}
             ListFooterComponent={
               loadingMore ? (
                 <Box py="$4" justifyContent="center" alignItems="center">
