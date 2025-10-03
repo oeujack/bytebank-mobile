@@ -23,7 +23,7 @@ export function CircularMenu({
             <Box
               width="$16"
               height="$16"
-              bg="$blue500"
+              bg="$green500"
               borderRadius="$full"
               justifyContent="center"
               alignItems="center"
@@ -52,7 +52,7 @@ export function CircularMenu({
             <Box
               width="$16"
               height="$16"
-              bg="$blue500"
+              bg="$green500"
               borderRadius="$full"
               justifyContent="center"
               alignItems="center"
