@@ -14,7 +14,13 @@ import {
 
 import { Pencil, Trash2 } from "lucide-react-native";
 
-const TransactionItem = React.memo(({ item, onEdit, onDelete }: any) => {
+interface TransactionItemProps {
+  item: any;
+  onEdit: (id: number) => void;
+  onDelete: (id: number) => void;
+}
+
+const TransactionItem = React.memo(({ item, onEdit, onDelete }: TransactionItemProps) => {
   function formatCurrency(value: number) {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -94,18 +100,41 @@ const TransactionItem = React.memo(({ item, onEdit, onDelete }: any) => {
             />
           )}
 
-          <VStack space="xs">
-            <TouchableOpacity onPress={() => onEdit(item.id!)}>
-              <Box p="$2" bg="$gray500" borderRadius="$md">
-                <Icon as={Pencil} size="sm" color="$gray200" />
-              </Box>
-            </TouchableOpacity>
+          <VStack space="xs" zIndex={999}>
+            <div 
+              style={{ 
+                padding: 8, 
+                backgroundColor: '#6b7280', 
+                borderRadius: 6, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 4
+              }}
+              onClick={() => {
+                onEdit(item.id!);
+              }}
+            >
+              <Icon as={Pencil} size="sm" color="$gray200" />
+            </div>
 
-            <TouchableOpacity onPress={() => onDelete(item.id!)}>
-              <Box p="$2" bg="$red500" borderRadius="$md">
-                <Icon as={Trash2} size="sm" color="$white" />
-              </Box>
-            </TouchableOpacity>
+            <div 
+              style={{ 
+                padding: 8, 
+                backgroundColor: '#ef4444', 
+                borderRadius: 6, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={() => {
+                onDelete(item.id!);
+              }}
+            >
+              <Icon as={Trash2} size="sm" color="$white" />
+            </div>
           </VStack>
         </HStack>
       </HStack>

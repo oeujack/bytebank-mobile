@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
   VStack,
@@ -54,39 +53,31 @@ export function TransactionList({
     navigation.navigate("addEditTransaction", {});
   }
 
-  function handleEditTransaction(transactionId: number) {
+  const handleEditTransaction = useCallback((transactionId: number) => {
     navigation.navigate("addEditTransaction", { transactionId });
-  }
+  }, [navigation]);
 
-  async function handleDeleteTransaction(transactionId: number) {
-    Alert.alert(
-      "Excluir Transação",
-      "Tem certeza que deseja excluir esta transação?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteTransaction(transactionId);
-              Alert.alert("Sucesso", "Transação excluída com sucesso");
-              // Chamar callback para atualizar dados na tela pai
-              if (onTransactionDeleted) {
-                onTransactionDeleted();
-              }
-            } catch (error) {
-              const isAppError = error instanceof AppError;
-              const title = isAppError
-                ? error.message
-                : "Erro ao excluir transação";
-              Alert.alert("Erro", title);
-            }
-          },
-        },
-      ]
-    );
-  }
+  const handleDeleteTransaction = useCallback(async (transactionId: number) => {
+    const isConfirmed = window.confirm("Tem certeza que deseja excluir esta transação?");
+    
+    if (isConfirmed) {
+      try {
+        await deleteTransaction(transactionId);
+        window.alert("Transação excluída com sucesso");
+        
+        if (onTransactionDeleted) {
+          onTransactionDeleted();
+        }
+      } catch (error) {
+        const isAppError = error instanceof AppError;
+        const title = isAppError
+          ? error.message
+          : "Não foi possível excluir a transação. Tente novamente.";
+          
+        window.alert("Erro: " + title);
+      }
+    }
+  }, [deleteTransaction, onTransactionDeleted]);
 
   const filteredTransactions = useMemo(() => {
     const now = new Date();
@@ -177,7 +168,7 @@ export function TransactionList({
         />
       );
     },
-    []
+    [handleEditTransaction, handleDeleteTransaction]
   );
 
   return (
@@ -201,13 +192,13 @@ export function TransactionList({
         <Heading size="lg" color="$gray100">
           Transações
         </Heading>
-        <TouchableOpacity onPress={onClose}>
+        <div onClick={onClose} style={{ cursor: 'pointer' }}>
           <Box p="$2" bg="$gray500" borderRadius="$md">
             <Text color="$gray100" fontSize="$lg" fontWeight="bold">
               ×
             </Text>
           </Box>
-        </TouchableOpacity>
+        </div>
       </HStack>
       <Box>
         {/* Botão para abrir/fechar filtros */}

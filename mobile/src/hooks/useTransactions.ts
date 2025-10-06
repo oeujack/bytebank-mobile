@@ -3,6 +3,7 @@ import { api } from '@services/api';
 import { TransactionDTO, BalanceDTO } from '@dtos/TransactionDTO';
 import { useImageUpload } from './useImageUpload';
 import { AppError } from '@utils/AppError';
+import { storageAuthTokenGet } from '@storage/storageAuthToken';
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<TransactionDTO[]>([]);
@@ -72,15 +73,23 @@ export function useTransactions() {
       // Deletar a transação da API
       await api.delete(`/transactions/${id}`);
       
-      // Se a transação tem uma imagem, deletar do Firebase
+      // Se a transação tem uma imagem, deletar do Firebase (sem aguardar)
       if (transaction?.attachment_url) {
-        await deleteImage(transaction.attachment_url);
+        deleteImage(transaction.attachment_url).catch(console.error);
       }
       
-      await fetchTransactions();
-      await fetchBalances();
-    } catch (error) {
-      throw new AppError('Erro ao deletar transação');
+      // Atualizar local state primeiro para feedback imediato
+      setTransactions(prevTransactions => prevTransactions.filter(t => t.id !== id));
+      
+      // Depois atualizar dados do servidor
+      await Promise.all([
+        fetchTransactions(),
+        fetchBalances()
+      ]);
+      
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Erro ao deletar transação';
+      throw new AppError(errorMessage);
     } finally {
       setIsLoading(false);
     }
