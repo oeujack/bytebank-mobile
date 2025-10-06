@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { TouchableOpacity, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
   VStack,
@@ -58,25 +59,37 @@ export function TransactionList({
   }, [navigation]);
 
   const handleDeleteTransaction = useCallback(async (transactionId: number) => {
-    const isConfirmed = window.confirm("Tem certeza que deseja excluir esta transação?");
-    
-    if (isConfirmed) {
-      try {
-        await deleteTransaction(transactionId);
-        window.alert("Transação excluída com sucesso");
-        
-        if (onTransactionDeleted) {
-          onTransactionDeleted();
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Tem certeza que deseja excluir esta transação?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteTransaction(transactionId);
+              Alert.alert("Sucesso", "Transação excluída com sucesso");
+              
+              if (onTransactionDeleted) {
+                onTransactionDeleted();
+              }
+            } catch (error) {
+              const isAppError = error instanceof AppError;
+              const title = isAppError
+                ? error.message
+                : "Não foi possível excluir a transação. Tente novamente.";
+                
+              Alert.alert("Erro", title);
+            }
+          }
         }
-      } catch (error) {
-        const isAppError = error instanceof AppError;
-        const title = isAppError
-          ? error.message
-          : "Não foi possível excluir a transação. Tente novamente.";
-          
-        window.alert("Erro: " + title);
-      }
-    }
+      ]
+    );
   }, [deleteTransaction, onTransactionDeleted]);
 
   const filteredTransactions = useMemo(() => {
@@ -192,13 +205,13 @@ export function TransactionList({
         <Heading size="lg" color="$gray100">
           Transações
         </Heading>
-        <div onClick={onClose} style={{ cursor: 'pointer' }}>
+        <TouchableOpacity onPress={onClose}>
           <Box p="$2" bg="$gray500" borderRadius="$md">
             <Text color="$gray100" fontSize="$lg" fontWeight="bold">
               ×
             </Text>
           </Box>
-        </div>
+        </TouchableOpacity>
       </HStack>
       <Box>
         {/* Botão para abrir/fechar filtros */}

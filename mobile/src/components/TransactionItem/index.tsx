@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, Platform } from "react-native";
 import {
   VStack,
   HStack,
@@ -101,40 +101,77 @@ const TransactionItem = React.memo(({ item, onEdit, onDelete }: TransactionItemP
           )}
 
           <VStack space="xs" zIndex={999}>
-            <div 
-              style={{ 
-                padding: 8, 
-                backgroundColor: '#6b7280', 
-                borderRadius: 6, 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 4
-              }}
-              onClick={() => {
-                onEdit(item.id!);
-              }}
-            >
-              <Icon as={Pencil} size="sm" color="$gray200" />
-            </div>
+            {Platform.OS === 'web' ? (
+              <>
+                <div 
+                  style={{ 
+                    padding: 8, 
+                    backgroundColor: '#6b7280', 
+                    borderRadius: 6, 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 4
+                  }}
+                  onClick={() => {
+                    onEdit(item.id!);
+                  }}
+                >
+                  <Icon as={Pencil} size="sm" color="$gray200" />
+                </div>
 
-            <div 
-              style={{ 
-                padding: 8, 
-                backgroundColor: '#ef4444', 
-                borderRadius: 6, 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              onClick={() => {
-                onDelete(item.id!);
-              }}
-            >
-              <Icon as={Trash2} size="sm" color="$white" />
-            </div>
+                <div 
+                  style={{ 
+                    padding: 8, 
+                    backgroundColor: '#ef4444', 
+                    borderRadius: 6, 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onClick={() => {
+                    onDelete(item.id!);
+                  }}
+                >
+                  <Icon as={Trash2} size="sm" color="$white" />
+                </div>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={() => {
+                    onEdit(item.id!);
+                  }}
+                  style={{
+                    padding: 8,
+                    backgroundColor: '#6b7280',
+                    borderRadius: 6,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 4
+                  }}
+                >
+                  <Icon as={Pencil} size="sm" color="$gray200" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    onDelete(item.id!);
+                  }}
+                  style={{
+                    padding: 8,
+                    backgroundColor: '#ef4444',
+                    borderRadius: 6,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Icon as={Trash2} size="sm" color="$white" />
+                </TouchableOpacity>
+              </>
+            )}
           </VStack>
         </HStack>
       </HStack>
