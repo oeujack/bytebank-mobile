@@ -15,12 +15,15 @@ import BackgroundImg from '@assets/backgroundx.png';
 import Logo from '@assets/logoBytebank.svg';
 import { Input } from '@components/Input';
 import { Button } from '@components/Button';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { AuthNavigatorRoutesProps } from '@routes/auth.routes';
 import { Controller, useForm } from 'react-hook-form';
 import { useAuth } from '@hooks/useAuth';
 import { AppError } from '@utils/AppError';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
+import { Alert, DeviceEventEmitter } from 'react-native';
 
 type FormData = {
   email: string;
@@ -32,6 +35,47 @@ export function SignIn() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
+
+  const [hasBiometricSupport, setHasBiometricSupport] = useState(false);
+  const [savedCredentials, setSavedCredentials] = useState<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const compatible = await LocalAuthentication.hasHardwareAsync();
+        setHasBiometricSupport(compatible);
+
+        const creds = await SecureStore.getItemAsync('user_credentials');
+        setSavedCredentials(creds);
+      })();
+    }, [])
+  );
+
+  async function handleBiometricLogin() {
+    const biometricAuth = await LocalAuthentication.authenticateAsync({
+      promptMessage: 'Autentique-se para entrar',
+      fallbackLabel: 'Usar senha',
+    });
+
+    if (biometricAuth.success) {
+      const creds = await SecureStore.getItemAsync('user_credentials');
+      if (creds) {
+        const { email, password } = JSON.parse(creds);
+        await handleSignIn({ email, password });
+      }
+    } else {
+      Alert.alert('Erro', 'Falha na autenticação biométrica.');
+    }
+  }
+
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener('biometricEnabled', async () => {
+      const creds = await SecureStore.getItemAsync('user_credentials');
+      setSavedCredentials(creds);
+    });
+
+    return () => sub.remove();
+  }, []);
 
   const {
     control,
@@ -71,6 +115,8 @@ export function SignIn() {
     }
   }
 
+  const existingCreds = SecureStore.getItemAsync('user_credentials');
+
   return (
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
@@ -106,7 +152,6 @@ export function SignIn() {
 
           <Center gap="$2">
             <Heading color="$gray100">Acesse a conta</Heading>
-
             <Controller
               control={control}
               name="email"
@@ -136,12 +181,18 @@ export function SignIn() {
                 />
               )}
             />
-
             <Button
               title="Acessar"
               onPress={handleSubmit(handleSignIn)}
               isLoading={isLoading}
             />
+            {hasBiometricSupport && !!savedCredentials && (
+              <Button
+                title="Entrar com biometria"
+                onPress={handleBiometricLogin}
+                mt="$4"
+              />
+            )}
           </Center>
 
           <Center flex={1} justifyContent="flex-end" marginTop="$4">

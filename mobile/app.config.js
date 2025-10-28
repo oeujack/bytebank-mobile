@@ -11,9 +11,7 @@ export default {
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -37,6 +35,8 @@ export default {
       "firebaseMeasurementId": process.env.FIREBASE_MEASUREMENT_ID
     },
     "plugins": [
+      "expo-font",
+      "expo-secure-store",
       [
         "expo-image-picker",
         {
